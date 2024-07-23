@@ -1,6 +1,6 @@
 {
     "id": "moreConfirm",
     "repository": "https://github.com/amsyarasyiq/dendam.git",
-    "commit": "4b871f606abc5e796e9c7d029b41c8f69a55798d",
+    "commit": "d2542dc4863c2d99b25d7342064c328352cf3627",
     "command": "pnpm i --recursive && pnpm build --release moreConfirm"
 }
