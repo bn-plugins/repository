@@ -69,7 +69,7 @@ jobs:
               with:
                 force: true
                 directory: dist
-                branch: dist
+                repository: bn-plugins/dist
                 github_token: ${{ secrets.BN_PLUGINS_PAT }}
 
             - name: Setup GitHub Pages
