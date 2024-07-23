@@ -29,7 +29,6 @@ jobs:
               with:
                 repository: bn-plugins/runner
                 path: runner
-                token: ${{ secrets.BN_PLUGINS_PAT }}
 
             - name: Prepare environment
               uses: actions/setup-node@v3
