@@ -70,8 +70,3 @@ jobs:
                 directory: dist
                 repository: bn-plugins/dist
                 github_token: ${{ secrets.BN_PLUGINS_PAT }}
-              with:
-                path: ./dist
-
-            - name: Deploy to GitHub Pages
-              uses: actions/deploy-pages@v2
