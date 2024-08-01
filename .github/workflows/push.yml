@@ -70,12 +70,6 @@ jobs:
                 directory: dist
                 repository: bn-plugins/dist
                 github_token: ${{ secrets.BN_PLUGINS_PAT }}
-
-            - name: Setup GitHub Pages
-              uses: actions/configure-pages@v3
-
-            - name: Upload artifact
-              uses: actions/upload-pages-artifact@v1
               with:
                 path: ./dist
 
