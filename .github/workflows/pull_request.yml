@@ -1,0 +1,64 @@
+name: Process new plugins
+
+on: [pull_request]
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  process:
+    name: Process new plugins
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout plugins
+        uses: actions/checkout@v3
+
+      - name: Checkout dist
+        uses: actions/checkout@v3
+        with:
+          repository: bn-plugins/dist
+          path: dist
+          ref: main
+          persist-credentials: true
+
+      - name: Checkout runner
+        uses: actions/checkout@v3
+        with:
+          repository: bn-plugins/runner
+          path: runner
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+  
+      - name: Build runner Docker image
+        working-directory: runner
+        run: |
+          docker build -t bn-plugins/plugin-builder:latest .
+
+      - name: Run runner
+        uses: actions/github-script@v7
+        env:
+          MANIFESTS_PATH: ${{ github.workspace }}/plugins
+          DIST_PATH: ${{ github.workspace }}/dist
+          RUNNER_PATH: ${{ github.workspace }}/runner
+          WORK_PATH: ${{ github.workspace }}/work
+          CHANGES_PATH: ${{ github.workspace }}/changes
+        with: 
+          script: |
+            const { postComment } = await import('${{ github.workspace }}/runner/scripts/runner.mjs');
+            postComment({ github, context });
+
+      - name: Upload changed artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: ${{ github.workspace }}/changes/*

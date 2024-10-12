@@ -1,0 +1,6 @@
+{
+    "id": "pylix.moreconfirm",
+    "repository": "https://github.com/amsyarasyiq/dendam.git",
+    "commit": "7b152fc99a496f50f5015ba04d53c503d8629ede",
+    "command": "pnpm i --recursive && pnpm build --release more-confirm"
+}

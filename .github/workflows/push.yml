@@ -1,0 +1,72 @@
+name: Deploy plugins
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        permissions:
+          contents: write
+          pages: write
+          id-token: write
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Checkout dist
+              uses: actions/checkout@v3
+              with:
+                repository: bn-plugins/dist
+                path: dist
+                token: ${{ secrets.BN_PLUGINS_PAT }}
+                persist-credentials: true
+              
+            - name: Checkout runner
+              uses: actions/checkout@v3
+              with:
+                repository: bn-plugins/runner
+                path: runner
+
+            - name: Prepare environment
+              uses: actions/setup-node@v3
+              with:
+                node-version: 20
+            
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2
+              with:
+                version: 8
+                run_install: false
+
+            - name: Build builder Docker image
+              working-directory: runner
+              run: docker build -t bn-plugins/plugin-builder:latest .
+
+            - name: Build plugins
+              working-directory: runner
+              env:
+                MANIFESTS_PATH: ${{ github.workspace }}/plugins
+                DIST_PATH: ${{ github.workspace }}/dist
+                RUNNER_PATH: ${{ github.workspace }}/runner
+                WORK_PATH: ${{ github.workspace }}/work
+              run: pnpm run runner
+
+            - name: Commit changes
+              working-directory: dist
+              run: |
+                git config --local user.name "GitHub Actions"
+                git config --local user.email "actions@github.com"
+                git add .
+                git diff --cached --quiet && exit 0
+                git commit -m "Update plugins"
+
+            - name: Push changes
+              uses: ad-m/github-push-action@master
+              with:
+                force: true
+                directory: dist
+                repository: bn-plugins/dist
+                github_token: ${{ secrets.BN_PLUGINS_PAT }}
