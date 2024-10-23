@@ -1,0 +1,6 @@
+{
+    "id": "yourname.template",
+    "repository": "https://github.com/pylixonly/bunny-plugins.git",
+    "commit": "16af3334e0a5cceb65b200e6c84a7e2efadb8bc6",
+    "command": "pnpm i --recursive && pnpm build"
+}
