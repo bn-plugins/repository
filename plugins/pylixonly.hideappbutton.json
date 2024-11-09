@@ -1,0 +1,6 @@
+{
+    "id": "pylixonly.hideappbutton",
+    "repository": "https://github.com/pylixonly/bunny-plugins.git",
+    "commit": "9bdefbedafccbfa5aa9fac9f8e9ba8fa6ffbc6c3",
+    "command": "pnpm i --recursive && pnpm build"
+}
