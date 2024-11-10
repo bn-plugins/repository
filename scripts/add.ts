@@ -31,7 +31,7 @@ async function writePlugin(existing?) {
 }
 
 if (existsSync(`./plugins/${FORM.id}.json`)) {
-    await writePlugin(require(`./plugins/${FORM.id}.json`));
+    await writePlugin(await Bun.file(`./plugins/${FORM.id}.json`).json());
 } else {
     await writePlugin();
 }
