@@ -1,0 +1,67 @@
+name: Delete Plugin
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  delete-from-repository:
+    permissions: write-all
+    name: Delete a plugin
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.issue.title, '[delete]')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+            persist-credentials: false
+        
+      - name: Parse issue
+        id: issue-parser
+        uses: stefanbuck/github-issue-parser@v3
+        with:
+            template-path: .github/ISSUE_TEMPLATE/publish-plugin.yml
+      
+      - name: Verify author
+        id: verify-author
+        uses: actions/github-script@v7
+        with:
+            script: |
+                const id = "${{ fromJson(steps.issue-parser.outputs.jsonString)['id'] }}";
+                const fs = await import('fs');
+
+                const file = fs.readFileSync(`${{ github.workspace }}/plugins/${id}.json`);
+                const plugin = JSON.parse(file);
+
+                return plugin.authorId === "${{ github.event.issue.user.id }}";
+        
+      - name: Show error message
+        if: ${{ !steps.verify-author.outputs.result || failure() }}
+        uses: peter-evans/close-issue@v3
+        with:
+          comment: |
+            # Error deleting plugin
+            Sorry about that! There was an error while processing the request, or you are not the author of the plugin. Only the author can delete the plugin.
+    
+      - name: Delete plugin
+        if: ${{ steps.verify-author.outputs.result }}
+        run: rm ./plugins/${{ fromJson(steps.issue-parser.outputs.jsonString)['id'] }}.json
+      
+      - name: Commit changes
+        if: ${{ steps.verify-author.outputs.result }}
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git commit -a -m "Delete \`${{ fromJson(steps.issue-parser.outputs.jsonString)['id'] }}\`"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.BN_PLUGINS_PAT }}
+      
+      - name: Show success message
+        if: ${{ steps.verify-author.outputs.result }}
+        uses: peter-evans/close-issue@v3
+        with:
+          comment: |
+            # Plugin deleted
+            The plugin has been successfully deleted from the repository.

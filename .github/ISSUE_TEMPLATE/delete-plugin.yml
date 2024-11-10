@@ -1,0 +1,28 @@
+name: Delete a plugin
+description: Delete a plugin from the plugin repository.
+title: "[delete] <plugin-id>"
+labels: ["delete"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > [!WARNING]
+        > Once a plugin is deleted from the repository, the users will no longer be able to access the plugin. This action is irreversible. Please make sure you want to delete the plugin before proceeding.
+
+  - type: input
+    id: id
+    attributes:
+      label: Plugin ID
+      description: The plugin ID. It should be a unique identifier for the plugin. It should be lowercase and contain only letters, numbers, and periods.
+      placeholder: e.g. "pylixonly.moreconfirmations"
+    validations:
+      required: true
+  
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirm deletion
+      description: Check this box to confirm that you want to delete the plugin.
+      options:
+        - label: I am the author of this plugin and I confirm that I want to delete it.
+          required: true
