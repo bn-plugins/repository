@@ -2,10 +2,10 @@ import { existsSync } from "fs";
 import { writeFile } from "fs/promises";
 
 interface Form {
-    id: string;
-    "git-url": string;
-    commit: string;
-    command: string;
+    "id": string;
+    "commit": string;
+    "git-url"?: string;
+    "command"?: string;
     "dist-target"?: string;
 }
 
@@ -14,6 +14,18 @@ const AUTHOR_ID = Bun.env.AUTHOR_ID!;
 
 async function writePlugin(existing?) {
     try {
+        const required = ["id", "commit"]
+        const requiredForNew = [...required, "git-url", "command"];
+
+        // Validate required fields
+        for (const key of required) {
+            if (!existing?.[key]) throw new Error(`Missing required field: ${key}`);
+        }
+
+        for (const key of requiredForNew) {
+            if (!FORM[key]) throw new Error(`Missing required field for new plugins: ${key}`);
+        }
+
         const data = Object.assign(existing ?? {}, {
             id: FORM.id,
             repository: FORM["git-url"],
@@ -27,6 +39,7 @@ async function writePlugin(existing?) {
         console.log(`File saved successfully: ./plugins/${FORM.id}.json`);
     } catch (error) {
         console.error("Error saving file:", error);
+        process.exit(1);
     }
 }
 
