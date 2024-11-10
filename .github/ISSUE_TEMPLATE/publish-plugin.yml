@@ -25,7 +25,6 @@ body:
       label: Commit hash
       description: The commit hash of the plugin version you want to publish/update.
       placeholder: e.g. "9bdefbedafccbfa5aa9fac9f8e9ba8fa6ffbc6c3"
-      render: shell
     validations:
       required: true
 
@@ -35,7 +34,6 @@ body:
       label: Command
       description: The command to run to build the plugin. This should be a single command that can be run in the terminal. Refer to the following [Dockerfile](https://github.com/bn-plugins/runner/blob/main/Dockerfile) for the environment.
       placeholder: e.g. "pnpm install --recursive && pnpm build"
-      render: shell
     validations:
       required: true
 
