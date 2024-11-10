@@ -38,6 +38,7 @@ jobs:
         if: ${{ !steps.verify-author.outputs.result || failure() }}
         uses: peter-evans/close-issue@v3
         with:
+          close-reason: not_planned
           comment: |
             # Error deleting plugin
             Sorry about that! There was an error while processing the request, or you are not the author of the plugin. Only the author can delete the plugin.
