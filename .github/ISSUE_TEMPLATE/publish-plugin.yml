@@ -1,0 +1,55 @@
+name: Publish a plugin
+description: Publish or update a plugin in the plugin repository.
+title: "[publish] <plugin-id>"
+labels: ["publish"]
+body:
+  - type: input
+    id: id
+    attributes:
+      label: Plugin ID
+      description: The plugin ID. It should be a unique identifier for the plugin. It should be lowercase and contain only letters, numbers, and periods.
+      placeholder: e.g. "pylixonly.moreconfirmations"
+    validations:
+      required: true
+  
+  - type: input
+    id: git-url
+    attributes:
+      label: Git repository
+      description: A URL to the Git repository of the plugin monorepo. You may skip this if you are updating an existing plugin.
+      placeholder: e.g. "https://github.com/pylixonly/bunny-plugins.git"
+
+  - type: input
+    id: commit
+    attributes:
+      label: Commit hash
+      description: The commit hash of the plugin version you want to publish/update.
+      placeholder: e.g. "9bdefbedafccbfa5aa9fac9f8e9ba8fa6ffbc6c3"
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: command
+    attributes:
+      label: Command
+      description: The command to run to build the plugin. This should be a single command that can be run in the terminal. Refer to the following [Dockerfile](https://github.com/bn-plugins/runner/blob/main/Dockerfile) for the environment.
+      placeholder: e.g. "pnpm install --recursive && pnpm build"
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: dist-target
+    attributes:
+      label: Distribution target
+      description: The path to the distribution directory relative to the root of the repository. This is the directory that contains the plugin distribution files. The default is "dist/builds/<plugin-id>" following the official template.
+      placeholder: e.g. "dist/builds/pylixonly.moreconfirmations"
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Any additional notes or comments you would like to include for the reviewers.
+      placeholder: e.g. "The built files are '...'' because '...'"
+  

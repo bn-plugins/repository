@@ -1,0 +1,80 @@
+name: Publish Plugin
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  create-pull-request:
+    permissions: write-all
+    name: Publish a plugin
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.issue.title, '[publish]')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+      
+        
+      - name: Parse issue
+        id: issue-parser
+        uses: stefanbuck/github-issue-parser@v3
+        with:
+            template-path: .github/ISSUE_TEMPLATE/publish-plugin.yml
+
+      - name: Export parsed payload into variables
+        id: export
+        run: |
+            echo "PLUGIN_ID=${{ fromJson(steps.issue-parser.outputs.jsonString)['id'] }}" >> $GITHUB_ENV
+            echo "PLUGIN_AUTHOR=${{ github.event.issue.user.login }}" >> $GITHUB_ENV
+   
+      - name: Process request
+        env:
+            AUTHOR_ID: ${{ github.event.issue.user.id }}
+            FORM: ${{ steps.issue-parser.outputs.jsonString }}
+        run: bun scripts/add.ts
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Show error message
+        if: failure()
+        uses: peter-evans/close-issue@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          comment: |
+            # Error publishing plugin
+            Sorry about that! There was an error publishing the plugin. Please try again or contact the maintainers for help.
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        if: success()
+        with:
+          add-paths: plugins/
+          labels: publish
+          token: ${{ secrets.BN_PLUGINS_PAT }}
+          commit-message: '[publish] `${{ env.PLUGIN_ID }}`'
+          delete-branch: true
+          title: 'Publish `${{ env.PLUGIN_ID }}`'
+          body: |
+            # Publish `${{ env.PLUGIN_ID }}`
+            Request submitted by: @${{ env.PLUGIN_AUTHOR }} from #${{ github.event.issue.number }}
+
+          branch: publish-${{ github.event.issue.number }}
+          base: main
+
+      - name: Close Issue
+        uses: peter-evans/close-issue@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          comment: |
+            # Thank you for your contribution! :tada:
+
+            Your publishing request has been successfully submitted. The maintainers will review it and get back to you soon.
+
+            Here are some details about your submission:
+            * Your plugin has been requested into [this PR](https://github.com/bn-plugins/repository/pull/${{ env.PULL_REQUEST_NUMBER }}).
+            * It has been created into the [publish-${{ github.event.issue.number }} branch](https://github.com/plugins/repository/tree/publish-${{ github.event.issue.number }}).

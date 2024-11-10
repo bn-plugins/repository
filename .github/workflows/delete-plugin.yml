@@ -1,0 +1,45 @@
+name: Delete Plugin
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  delete-from-repository:
+    permissions: write-all
+    name: Delete a plugin
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.issue.title, '[delete]')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Parse issue
+        id: issue-parser
+        uses: stefanbuck/github-issue-parser@v3
+        with:
+            template-path: .github/ISSUE_TEMPLATE/publish-plugin.yml
+      
+      - name: Verify author
+        id: verify-author
+        uses: actions/github-script@v7
+        with:
+            script: |
+                const id = "${{ fromJson(steps.issue-parser.outputs.jsonString)['id'] }}";
+                const fs = await import('fs');
+
+                const file = fs.readFileSync(`./plugins/${id}.json`));
+                const plugin = JSON.parse(file);
+
+                return plugin.authorId === ${{ github.event.issue.user.id }};
+        
+      - name: Close issue
+        if: ${{ !steps.verify-author.outputs.result }}
+        uses: peter-evans/close-issue@v3
+        with:
+            comment: |
+                # Error deleting plugin
+                Sorry about that! You are not the author of the plugin. Only the author can delete the plugin.
+    
+      - name: Delete plugin
+        if: ${{ steps.verify-author.outputs.result }}
+        run: rm ./plugins/${{ fromJson(steps.issue-parser.outputs.jsonString)['id'] }}.json
