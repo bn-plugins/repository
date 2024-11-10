@@ -33,7 +33,7 @@ jobs:
         env:
             AUTHOR_ID: ${{ github.event.issue.user.id }}
             FORM: ${{ steps.issue-parser.outputs.jsonString }}
-        run: bun scripts/add.ts
+        run: bun scripts/add.ts --cwd=${{ github.workspace }}
 
       - name: Setup Git
         run: |
