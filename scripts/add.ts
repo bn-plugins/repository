@@ -22,8 +22,10 @@ async function writePlugin(existing?) {
             if (!existing?.[key]) throw new Error(`Missing required field: ${key}`);
         }
 
-        for (const key of requiredForNew) {
-            if (!FORM[key]) throw new Error(`Missing required field for new plugins: ${key}`);
+        if (!existing) {
+            for (const key of requiredForNew) {
+                if (!FORM[key]) throw new Error(`Missing required field for new plugins: ${key}`);
+            }
         }
 
         const data = Object.assign(existing ?? {}, {
