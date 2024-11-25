@@ -12,11 +12,6 @@ interface Form {
 const FORM: Form = JSON.parse(Bun.env.FORM!);
 const AUTHOR_ID = Bun.env.AUTHOR_ID!;
 
-// Remove fields with empty values
-for (const key in FORM) {
-    if (!FORM[key]) delete FORM[key]; 
-}
-
 async function writePlugin(existing?) {
     try {
         const required = ["id", "commit"]
@@ -33,16 +28,23 @@ async function writePlugin(existing?) {
             }
         }
 
-        const data = Object.assign(existing ?? {}, {
+        const formatted = {
             id: FORM.id,
             repository: FORM["git-url"],
             commit: FORM.commit,
             command: FORM.command,
             distFolder: FORM["dist-target"] || undefined,
             authorId: AUTHOR_ID
-        });
+        };
 
-        await writeFile(`./plugins/${FORM.id}.json`, JSON.stringify(data, null, 2));
+        // Reassign old values
+        if (existing) {
+            for (const key in existing) {
+                formatted[key] ||= existing[key];
+            }
+        }
+
+        await writeFile(`./plugins/${FORM.id}.json`, JSON.stringify(formatted, null, 2));
         console.log(`File saved successfully: ./plugins/${FORM.id}.json`);
     } catch (error) {
         console.error("Error saving file:", error);
