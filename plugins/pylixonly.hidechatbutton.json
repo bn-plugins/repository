@@ -1,7 +1,5 @@
 {
   "id": "pylixonly.hidechatbutton",
-  "repository": "https://github.com/pylixonly/bunny-plugins.git",
-  "commit": "9bdefbedafccbfa5aa9fac9f8e9ba8fa6ffbc6c3",
-  "command": "pnpm i --recursive && pnpm build",
+  "commit": "71d0c37ece2cc0a67b5ba59b4de4e4a6107eadcf",
   "authorId": "82711525"
 }
