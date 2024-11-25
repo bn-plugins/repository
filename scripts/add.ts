@@ -12,6 +12,11 @@ interface Form {
 const FORM: Form = JSON.parse(Bun.env.FORM!);
 const AUTHOR_ID = Bun.env.AUTHOR_ID!;
 
+// Remove fields with empty values
+for (const key in FORM) {
+    if (!FORM[key]) delete FORM[key]; 
+}
+
 async function writePlugin(existing?) {
     try {
         const required = ["id", "commit"]
